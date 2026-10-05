@@ -1,0 +1,29 @@
+prefix: "<dark_gray>[<light_purple>Bounty<dark_gray>] <reset>"
+
+usage: "<red>Usage: <gray>/bounty <check|set|remove|bet>"
+
+usage-check: "<red>Usage: <gray>/bounty check <player>"
+usage-set: "<red>Usage: <gray>/bounty set <player> <amount>"
+usage-remove: "<red>Usage: <gray>/bounty remove <player>"
+usage-bet: "<red>Usage: <gray>/bounty bet <player> <amount>"
+
+unknown-command: "<red>Unknown subcommand."
+invalid-amount: "<red>Invalid amount."
+
+check:
+  result: "<yellow>{player}'s <green>bounty: <gold>{amount}"
+
+set:
+  success: "<green>Set <yellow>{player}'s <green>bounty to <gold>{amount}"
+
+remove:
+  success: "<green>Removed <yellow>{player}'s <green>bounty."
+
+bet:
+  success: "<green>Added <gold>{amount} <green>to <yellow>{player}'s <green>bounty."
+  new-total: "<green>New bounty: <gold>{amount}"
+
+reload:
+  success: "<green>Messages have been reloaded successfully."
+
+no-permission: "<red>You don't have permission to do that."
