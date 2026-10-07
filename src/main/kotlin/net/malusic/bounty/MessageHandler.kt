@@ -59,22 +59,20 @@ class MessageHandler(
 
     fun message(
         path: String,
-        placeholders: Map<String, String> = emptyMap()
+        placeholders: Map<String, String> = emptyMap(),
+        withPrefix: Boolean = true
     ): Component {
 
         var message = config.getString(path)
             ?: "<red>Missing message: $path"
 
         placeholders.forEach { (key, value) ->
-            message = message.replace(
-                "{$key}",
-                value
-            )
+            message = message.replace("{$key}", value)
         }
 
-        val prefix = config.getString("prefix") ?: ""
-
-        message = prefix + message
+        if (withPrefix) {
+            message = (config.getString("prefix") ?: "") + message
+        }
 
         return miniMessage.deserialize(message)
     }

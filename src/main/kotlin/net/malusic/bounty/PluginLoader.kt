@@ -18,13 +18,11 @@ class PluginLoader : JavaPlugin() {
             return
         }
 
-        // 1. Create the managers first
         messageManager = MessageHandler(this)
 
         bountyManager = BountyManager(this)
         bountyManager.load()
 
-        // 2. Only then use them
         val commandHandler = CommandHandler(
             bountyManager,
             messageManager

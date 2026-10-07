@@ -8,7 +8,7 @@ depend: [Vault]
 commands:
   bounty:
     description: Manage player bounties
-    usage: /bounty <set|remove|bet|check|reload>
+    usage: /bounty <set|remove|bet|check|top|reload>
 permissions:
   bounty.set:
     description: Allows setting player bounties
@@ -21,4 +21,7 @@ permissions:
     default: op
   bounty.bet:
     description: Allows adding money to bounties
+    default: true
+  bounty.top:
+    description: Allows viewing the bounty leaderboard
     default: true

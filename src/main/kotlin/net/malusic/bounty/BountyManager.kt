@@ -48,4 +48,13 @@ class BountyManager(private val plugin: JavaPlugin) {
         data.bounties.remove(uuid.toString())
         save()
     }
+
+    fun getTop(): List<Pair<UUID, Double>> =
+        data.bounties.entries
+            .filter { it.value > 0.0 }
+            .mapNotNull { entry ->
+                runCatching { UUID.fromString(entry.key) }.getOrNull()?.let { it to entry.value }
+            }
+            .sortedByDescending { it.second }
+
 }

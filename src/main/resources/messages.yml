@@ -26,6 +26,15 @@ bet:
   payment-failed: "<red>Could not withdraw the money. Please try again."
   self: "<red>You can't bet on your own bounty."
 
+usage-top: "<red>Usage: /bounty top [page]"
+
+top:
+  header: "<gold><bold>Top Bounties</bold> <gray>(page {page}/{pages})"
+  entry: "<yellow>#{rank} <white>{player} <gray>- <green>{amount}"
+  footer: "<gray>Use <yellow>/bounty top {next}</yellow> for the next page."
+  empty: "<red>There are no active bounties."
+  invalid-page: "<red>Invalid page number."
+
 player-only: "<red>This command can only be used by a player."
 
 unknown-player: "<red>That player has never joined this server."

@@ -193,6 +193,76 @@ class CommandHandler(
                 )
             }
 
+            "top" -> {
+                if (!sender.hasPermission("bounty.top")) {
+                    sender.sendMessage(messageManager.message("no-permission"))
+                    return true
+                }
+
+                if (args.size > 2) {
+                    sender.sendMessage(messageManager.message("usage-top"))
+                    return true
+                }
+
+                val page = if (args.size == 2) args[1].toIntOrNull() else 1
+                if (page == null || page < 1) {
+                    sender.sendMessage(messageManager.message("top.invalid-page"))
+                    return true
+                }
+
+                val top = bountyManager.getTop()
+                if (top.isEmpty()) {
+                    sender.sendMessage(messageManager.message("top.empty"))
+                    return true
+                }
+
+                val perPage = 10
+                val pages = (top.size + perPage - 1) / perPage
+                if (page > pages) {
+                    sender.sendMessage(
+                        messageManager.message(
+                            "top.invalid-page"
+                        )
+                    )
+                    return true
+                }
+
+                sender.sendMessage(
+                    messageManager.message(
+                        "top.header",
+                        mapOf("page" to page.toString(), "pages" to pages.toString()),
+                        withPrefix = false
+                    )
+                )
+
+                top.drop((page - 1) * perPage)
+                    .take(perPage)
+                    .forEachIndexed { index, (uuid, amount) ->
+                        val name = Bukkit.getOfflinePlayer(uuid).name ?: uuid.toString().take(8)
+                        sender.sendMessage(
+                            messageManager.message(
+                                "top.entry",
+                                mapOf(
+                                    "rank" to ((page - 1) * perPage + index + 1).toString(),
+                                    "player" to name,
+                                    "amount" to format(amount)
+                                ),
+                                withPrefix = false
+                            )
+                        )
+                    }
+
+                if (page < pages) {
+                    sender.sendMessage(
+                        messageManager.message(
+                            "top.footer",
+                            mapOf("next" to (page + 1).toString()),
+                            withPrefix = false
+                        )
+                    )
+                }
+            }
+
             "reload" -> {
                 if (!sender.hasPermission("bounty.reload")) {
                     sender.sendMessage(messageManager.message("no-permission"))
@@ -219,11 +289,11 @@ class CommandHandler(
     ): List<String> {
 
         if (args.size == 1) {
-            return listOf("check", "set", "remove", "bet", "reload")
+            return listOf("check", "set", "remove", "bet", "reload", "top")
                 .filter { it.startsWith(args[0], ignoreCase = true) }
         }
 
-        if (args.size == 2 && args[0].lowercase() in listOf("check", "set", "remove", "bet")) {
+        if (args.size == 2 && args[0].lowercase() in listOf("check", "set", "remove", "bet", "top")) {
             return Bukkit.getOnlinePlayers()
                 .map { it.name }
                 .filter { it.startsWith(args[1], ignoreCase = true) }
