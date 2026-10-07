@@ -1,35 +1,49 @@
 package net.malusic.bounty
 
-import org.bukkit.event.Listener as Listner
+import net.milkbowl.vault.economy.Economy
 import org.bukkit.plugin.java.JavaPlugin
 
-
-class PluginLoader : JavaPlugin(), Listner {
+class PluginLoader : JavaPlugin() {
 
     lateinit var bountyManager: BountyManager
     lateinit var messageManager: MessageHandler
 
-    override fun onEnable() {
+    private fun economy(): Economy? =
+        server.servicesManager.getRegistration(Economy::class.java)?.provider
 
+    override fun onEnable() {
+        if (server.pluginManager.getPlugin("Vault") == null) {
+            logger.severe("Vault is not installed!")
+            server.pluginManager.disablePlugin(this)
+            return
+        }
+
+        // 1. Create the managers first
         messageManager = MessageHandler(this)
 
         bountyManager = BountyManager(this)
         bountyManager.load()
 
+        // 2. Only then use them
         val commandHandler = CommandHandler(
             bountyManager,
             messageManager
-        )
+        ) { economy() }
 
         getCommand("bounty")?.setExecutor(commandHandler)
         getCommand("bounty")?.tabCompleter = commandHandler
+
+        server.pluginManager.registerEvents(
+            DeathListener(bountyManager, messageManager) { economy() },
+            this
+        )
 
         logger.info("Plugin enabled!")
     }
 
     override fun onDisable() {
-        bountyManager.save()
-
+        if (::bountyManager.isInitialized) {
+            bountyManager.save()
+        }
     }
-
 }

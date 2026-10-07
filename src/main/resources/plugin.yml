@@ -1,20 +1,24 @@
 name: Bounty
-version: 1.0
+version: '${version}'
 main: net.malusic.bounty.PluginLoader
-api-version: 26.2
+api-version: '26.2'
 description: Simple liteweight minecraft bounty system
 author: Malusic
+depend: [Vault]
 commands:
   bounty:
     description: Manage player bounties
     usage: /bounty <set|remove|bet|check|reload>
 permissions:
-  bounty.reload:
-    description: Allows reloading the bounty messages
-    default: op
   bounty.set:
-    description: Allows overriding the bounty
+    description: Allows setting player bounties
     default: op
   bounty.remove:
-    description: Allows removing the bounty
+    description: Allows removing player bounties
     default: op
+  bounty.reload:
+    description: Allows reloading bounty messages
+    default: op
+  bounty.bet:
+    description: Allows adding money to bounties
+    default: true

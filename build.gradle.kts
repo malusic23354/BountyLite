@@ -5,21 +5,31 @@ plugins {
 }
 
 group = "net.malusic"
-version = "1.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
     paperweight.paperDevBundle("26.2.build.+")
     implementation("com.google.code.gson:gson:2.13.2")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
 }
 
 tasks {
     build {
         dependsOn(shadowJar)
+    }
+
+    jar {
+        archiveClassifier.set("plain")
+    }
+
+    shadowJar {
+        archiveClassifier.set("")
     }
 
     compileJava {

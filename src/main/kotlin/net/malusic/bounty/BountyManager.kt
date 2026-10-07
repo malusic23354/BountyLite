@@ -26,7 +26,7 @@ class BountyManager(private val plugin: JavaPlugin) {
         data = gson.fromJson(
             file.readText(),
             BountyData::class.java
-        )
+        ) ?: BountyData()
     }
 
     fun save() {

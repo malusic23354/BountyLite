@@ -24,15 +24,33 @@ class MessageHandler(
     }
 
     fun load() {
-
         if (!file.exists()) {
-            plugin.saveResource(
-                "messages.yml",
-                false
-            )
+            plugin.saveResource("messages.yml", false)
         }
 
         config = YamlConfiguration.loadConfiguration(file)
+        addMissingKeys()
+    }
+
+    private fun addMissingKeys() {
+        val stream = plugin.getResource("messages.yml") ?: return
+        val defaults = stream.reader(Charsets.UTF_8).use {
+            YamlConfiguration.loadConfiguration(it)
+        }
+
+        val missing = defaults.getKeys(true).filter {
+            !defaults.isConfigurationSection(it) && !config.contains(it, true)
+        }
+
+        if (missing.isEmpty()) return
+
+        for (key in missing) {
+            config.set(key, defaults.get(key))
+            config.setComments(key, defaults.getComments(key))
+        }
+
+        config.save(file)
+        plugin.logger.info("Added ${missing.size} new message(s) to messages.yml: ${missing.joinToString()}")
     }
 
     fun reload() {

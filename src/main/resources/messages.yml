@@ -1,6 +1,6 @@
 prefix: "<dark_gray>[<light_purple>Bounty<dark_gray>] <reset>"
 
-usage: "<red>Usage: <gray>/bounty <check|set|remove|bet>"
+usage: "<gold>Plugin made by Malusic!\n<red>Usage: <gray>/bounty <check|set|remove|bet>"
 
 usage-check: "<red>Usage: <gray>/bounty check <player>"
 usage-set: "<red>Usage: <gray>/bounty set <player> <amount>"
@@ -22,8 +22,18 @@ remove:
 bet:
   success: "<green>Added <gold>{amount} <green>to <yellow>{player}'s <green>bounty."
   new-total: "<green>New bounty: <gold>{amount}"
+  insufficient-funds: "<red>You don't have enough money. You need <gold>{amount}<red>."
+  payment-failed: "<red>Could not withdraw the money. Please try again."
+  self: "<red>You can't bet on your own bounty."
+
+player-only: "<red>This command can only be used by a player."
+
+unknown-player: "<red>That player has never joined this server."
 
 reload:
   success: "<green>Messages have been reloaded successfully."
+
+claim:
+  broadcast: "<gold>{killer}</gold> <gray>claimed the bounty of</gray> <green>{amount}</green> <gray>on</gray> <red>{victim}</red>"
 
 no-permission: "<red>You don't have permission to do that."
