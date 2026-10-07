@@ -30,4 +30,6 @@ A simple Paper Minecraft bounty plugin written in Kotlin.
 bounty.set
 bounty.remove
 bounty.reload
+bounty.bet (default)
+bounty.check (default)
 ```
