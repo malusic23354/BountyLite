@@ -22,6 +22,7 @@ A simple Paper Minecraft bounty plugin written in Kotlin.
 /bounty bet <player> <amount>
 /bounty remove <player>
 /bounty reload
+/bounty top <page>
 ```
 
 ## Permissions
@@ -32,4 +33,5 @@ bounty.remove
 bounty.reload
 bounty.bet (default)
 bounty.check (default)
+bounty.top (default)
 ```
