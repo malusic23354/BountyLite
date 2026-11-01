@@ -1,5 +1,5 @@
 name: BountyLite
-version: '1.0.3'
+version: '${version}'
 main: net.malusic.bounty.BountyPlugin
 api-version: '1.21.11'
 description: Simple lightweight Minecraft bounty system

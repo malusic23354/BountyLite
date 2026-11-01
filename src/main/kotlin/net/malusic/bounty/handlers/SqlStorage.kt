@@ -7,131 +7,100 @@ import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.UUID
 
-class SqlStorage(private val plugin: JavaPlugin) : BountyStorage {
-
-    private enum class Type {
-        SQLITE,
-        MYSQL
-    }
+class SqlStorage(private val plugin: JavaPlugin) : AutoCloseable {
 
     private val lock = Any()
+    private var connection: Connection? = null
 
-    private val type: Type
+    private val mysql: Boolean
     private val jdbcUrl: String
     private val username: String
     private val password: String
     private val table: String
-    private val upsertSql: String
-
-    private var connection: Connection? = null
 
     init {
         val config = plugin.config
 
-        type = when (config.getString("storage.type", "sqlite")?.trim()?.lowercase()) {
-            "mysql" -> Type.MYSQL
-            "sqlite" -> Type.SQLITE
-            else -> throw IllegalArgumentException(
-                "Invalid storage.type '${config.getString("storage.type")}'. Use 'sqlite' or 'mysql'."
-            )
+        mysql = when (val type = config.getString("storage.type", "sqlite")?.trim()?.lowercase()) {
+            "mysql" -> true
+            "sqlite" -> false
+            else -> throw IllegalArgumentException("Invalid storage.type '$type'. Use 'sqlite' or 'mysql'.")
         }
 
-        table = sanitizePrefix(config.getString("storage.table-prefix", "bounty_") ?: "bounty_") + "bounties"
+        table = clean(config.getString("storage.table-prefix", "bounty_")) + "bounties"
 
-        val driver = when (type) {
-            Type.SQLITE -> "org.sqlite.JDBC"
-            Type.MYSQL -> "com.mysql.cj.jdbc.Driver"
+        if (mysql) {
+            Class.forName("com.mysql.cj.jdbc.Driver")
+
+            val host = config.getString("storage.mysql.host", "localhost")
+            val port = config.getInt("storage.mysql.port", 3306)
+            val database = clean(config.getString("storage.mysql.database"), "bounty")
+            val ssl = if (config.getBoolean("storage.mysql.use-ssl")) "REQUIRED" else "DISABLED"
+            val options = "sslMode=$ssl&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+
+            username = config.getString("storage.mysql.username", "root") ?: "root"
+            password = config.getString("storage.mysql.password") ?: ""
+
+            createDatabase("jdbc:mysql://$host:$port/?$options", database)
+            jdbcUrl = "jdbc:mysql://$host:$port/$database?$options" +
+                "&characterEncoding=utf8&useUnicode=true&cachePrepStmts=true&useServerPrepStmts=true"
+        } else {
+            Class.forName("org.sqlite.JDBC")
+
+            val file = File(plugin.dataFolder, config.getString("storage.sqlite.file", "bounties.db") ?: "bounties.db")
+            file.parentFile?.mkdirs()
+
+            username = ""
+            password = ""
+            jdbcUrl = "jdbc:sqlite:${file.absolutePath}?busy_timeout=5000"
         }
-        Class.forName(driver)
 
-        when (type) {
-            Type.SQLITE -> {
-                val configuredFile = config.getString("storage.sqlite.file", "bounties.db") ?: "bounties.db"
-                val file = File(plugin.dataFolder, configuredFile)
-                file.parentFile?.mkdirs()
-
-                jdbcUrl = "jdbc:sqlite:${file.absolutePath}?busy_timeout=5000"
-                username = ""
-                password = ""
-            }
-
-            Type.MYSQL -> {
-                val host = config.getString("storage.mysql.host", "localhost") ?: "localhost"
-                val port = config.getInt("storage.mysql.port", 3306)
-                val database = sanitizeIdentifier(
-                    config.getString("storage.mysql.database", "bounty") ?: "bounty",
-                    "bounty"
+        withConnection { conn ->
+            conn.createStatement().use { statement ->
+                statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS `$table` " +
+                        "(`player_uuid` VARCHAR(36) NOT NULL, `amount` DOUBLE NOT NULL, PRIMARY KEY (`player_uuid`))"
                 )
-                val useSsl = config.getBoolean("storage.mysql.use-ssl", false)
-                val sslMode = if (useSsl) "REQUIRED" else "DISABLED"
-
-                username = config.getString("storage.mysql.username", "root") ?: "root"
-                password = config.getString("storage.mysql.password", "") ?: ""
-
-                createMysqlDatabaseIfNeeded(host, port, database, sslMode, username, password)
-
-                jdbcUrl = "jdbc:mysql://$host:$port/$database" +
-                    "?sslMode=$sslMode" +
-                    "&allowPublicKeyRetrieval=true" +
-                    "&serverTimezone=UTC" +
-                    "&characterEncoding=utf8" +
-                    "&useUnicode=true" +
-                    "&cachePrepStmts=true" +
-                    "&useServerPrepStmts=true"
-            }
-        }
-
-        createTable()
-
-        if (type == Type.SQLITE) {
-            enableSqliteOptimizations()
-        }
-
-        upsertSql = when (type) {
-            Type.SQLITE ->
-                "INSERT INTO `$table` (`player_uuid`, `amount`) VALUES (?, ?) " +
-                    "ON CONFLICT(`player_uuid`) DO UPDATE SET `amount` = excluded.`amount`"
-
-            Type.MYSQL ->
-                "INSERT INTO `$table` (`player_uuid`, `amount`) VALUES (?, ?) " +
-                    "ON DUPLICATE KEY UPDATE `amount` = ?"
-        }
-    }
-
-    override fun loadAll(): Map<UUID, Double> = withConnection { connection ->
-        val bounties = mutableMapOf<UUID, Double>()
-
-        connection.createStatement().use { statement ->
-            statement.executeQuery("SELECT `player_uuid`, `amount` FROM `$table`").use { resultSet ->
-                while (resultSet.next()) {
-                    val uuid = runCatching {
-                        UUID.fromString(resultSet.getString("player_uuid"))
-                    }.getOrNull() ?: continue
-
-                    bounties[uuid] = resultSet.getDouble("amount")
+                if (!mysql) {
+                    runCatching {
+                        statement.execute("PRAGMA journal_mode=WAL")
+                        statement.execute("PRAGMA synchronous=NORMAL")
+                    }
                 }
             }
         }
-
-        bounties
     }
 
-    override fun set(uuid: UUID, amount: Double) {
-        withConnection { connection ->
-            connection.prepareStatement(upsertSql).use { statement ->
+    private val upsertSql = "INSERT INTO `$table` (`player_uuid`, `amount`) VALUES (?, ?) " +
+        if (mysql) "ON DUPLICATE KEY UPDATE `amount` = VALUES(`amount`)"
+        else "ON CONFLICT(`player_uuid`) DO UPDATE SET `amount` = excluded.`amount`"
+
+    fun loadAll(): Map<UUID, Double> = withConnection { conn ->
+        conn.createStatement().use { statement ->
+            statement.executeQuery("SELECT `player_uuid`, `amount` FROM `$table`").use { rows ->
+                buildMap<UUID, Double> {
+                    while (rows.next()) {
+                        val uuid = runCatching { UUID.fromString(rows.getString(1)) }.getOrNull() ?: continue
+                        put(uuid, rows.getDouble(2))
+                    }
+                }
+            }
+        }
+    }
+
+    fun set(uuid: UUID, amount: Double) {
+        withConnection { conn ->
+            conn.prepareStatement(upsertSql).use { statement ->
                 statement.setString(1, uuid.toString())
                 statement.setDouble(2, amount)
-                if (type == Type.MYSQL) {
-                    statement.setDouble(3, amount)
-                }
                 statement.executeUpdate()
             }
         }
     }
 
-    override fun remove(uuid: UUID) {
-        withConnection { connection ->
-            connection.prepareStatement("DELETE FROM `$table` WHERE `player_uuid` = ?").use { statement ->
+    fun remove(uuid: UUID) {
+        withConnection { conn ->
+            conn.prepareStatement("DELETE FROM `$table` WHERE `player_uuid` = ?").use { statement ->
                 statement.setString(1, uuid.toString())
                 statement.executeUpdate()
             }
@@ -139,120 +108,46 @@ class SqlStorage(private val plugin: JavaPlugin) : BountyStorage {
     }
 
     override fun close() {
-        synchronized(lock) {
-            closeConnectionQuietly()
-        }
+        synchronized(lock) { closeQuietly() }
     }
 
-    private fun createTable() {
-        withConnection { connection ->
-            connection.createStatement().use { statement ->
-                statement.executeUpdate(
-                    """
-                    CREATE TABLE IF NOT EXISTS `$table` (
-                        `player_uuid` VARCHAR(36) NOT NULL,
-                        `amount` DOUBLE NOT NULL,
-                        PRIMARY KEY (`player_uuid`)
-                    )
-                    """.trimIndent()
-                )
-            }
-        }
-    }
-
-    private fun enableSqliteOptimizations() {
+    private fun <T> withConnection(block: (Connection) -> T): T = synchronized(lock) {
         try {
-            withConnection { connection ->
-                connection.createStatement().use { statement ->
-                    statement.execute("PRAGMA journal_mode=WAL")
-                    statement.execute("PRAGMA synchronous=NORMAL")
-                }
-            }
+            block(connect())
         } catch (exception: SQLException) {
-            plugin.logger.fine("Could not enable SQLite WAL mode: ${exception.message}")
+            plugin.logger.fine("Database connection failed, reconnecting: ${exception.message}")
+            closeQuietly()
+            block(connect())
         }
     }
 
-    /**
-     * Runs [block] against the shared connection, reconnecting and retrying
-     * once if the connection has gone stale.
-     */
-    private fun <T> withConnection(block: (Connection) -> T): T {
-        synchronized(lock) {
-            try {
-                return block(connection())
-            } catch (exception: SQLException) {
-                plugin.logger.fine("Database connection failed, reconnecting: ${exception.message}")
-                closeConnectionQuietly()
-                return block(connection())
-            }
-        }
-    }
+    private fun connect(): Connection {
+        connection?.let { if (runCatching { !it.isClosed }.getOrDefault(false)) return it }
+        closeQuietly()
 
-    private fun connection(): Connection {
-        val current = connection
-        if (current != null) {
-            try {
-                if (!current.isClosed) return current
-            } catch (_: SQLException) {
-                // Fall through and reconnect.
-            }
-        }
-
-        closeConnectionQuietly()
-
-        val newConnection = if (type == Type.MYSQL) {
+        val created = if (mysql) {
             DriverManager.getConnection(jdbcUrl, username, password)
         } else {
             DriverManager.getConnection(jdbcUrl)
         }
-
-        connection = newConnection
-        return newConnection
+        return created.also { connection = it }
     }
 
-    private fun closeConnectionQuietly() {
-        val current = connection
+    private fun closeQuietly() {
+        runCatching { connection?.close() }
         connection = null
-
-        if (current != null) {
-            try {
-                current.close()
-            } catch (_: SQLException) {
-                // Nothing useful to do while closing.
-            }
-        }
     }
 
-    private fun createMysqlDatabaseIfNeeded(
-        host: String,
-        port: Int,
-        database: String,
-        sslMode: String,
-        username: String,
-        password: String
-    ) {
-        val serverUrl = "jdbc:mysql://$host:$port/" +
-            "?sslMode=$sslMode" +
-            "&allowPublicKeyRetrieval=true" +
-            "&serverTimezone=UTC"
-
+    private fun createDatabase(serverUrl: String, database: String) {
         try {
-            DriverManager.getConnection(serverUrl, username, password).use { connection ->
-                connection.createStatement().use { statement ->
-                    statement.executeUpdate("CREATE DATABASE IF NOT EXISTS `$database`")
-                }
+            DriverManager.getConnection(serverUrl, username, password).use { conn ->
+                conn.createStatement().use { it.executeUpdate("CREATE DATABASE IF NOT EXISTS `$database`") }
             }
         } catch (exception: SQLException) {
-            plugin.logger.warning(
-                "Could not create MySQL database '$database'; assuming it already exists: ${exception.message}"
-            )
+            plugin.logger.warning("Could not create MySQL database '$database'; assuming it exists: ${exception.message}")
         }
     }
 
-    private fun sanitizePrefix(value: String): String =
-        value.filter { it.isLetterOrDigit() || it == '_' }
-
-    private fun sanitizeIdentifier(value: String, fallback: String): String =
-        value.filter { it.isLetterOrDigit() || it == '_' }.ifEmpty { fallback }
+    private fun clean(value: String?, fallback: String = ""): String =
+        value.orEmpty().filter { it.isLetterOrDigit() || it == '_' }.ifEmpty { fallback }
 }

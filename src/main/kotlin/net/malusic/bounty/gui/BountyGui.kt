@@ -100,10 +100,7 @@ class BountyGui(
     }
 
     fun bet(player: Player, target: UUID) {
-        if (!player.hasPermission("bounty.bet")) {
-            player.sendMessage(messages.message("no-permission"))
-            return
-        }
+        if (!canBet(player)) return
 
         val name = Bukkit.getOfflinePlayer(target).name ?: target.toString().take(8)
         val amount = economy.format(bountyManager.getBounty(target))
@@ -117,10 +114,7 @@ class BountyGui(
     }
 
     fun newBounty(player: Player) {
-        if (!player.hasPermission("bounty.bet")) {
-            player.sendMessage(messages.message("no-permission"))
-            return
-        }
+        if (!canBet(player)) return
 
         if (dialog.openNew(player)) return
 
@@ -139,6 +133,12 @@ class BountyGui(
 
     fun reload() {
         plugin.reloadConfig()
+    }
+
+    private fun canBet(player: Player): Boolean {
+        val allowed = player.hasPermission("bounty.bet")
+        if (!allowed) player.sendMessage(messages.message("no-permission"))
+        return allowed
     }
 
     private fun head(uuid: UUID, amount: Double, rank: Int): ItemStack {

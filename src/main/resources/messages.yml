@@ -5,14 +5,6 @@ usage: "<gold>Plugin made by Malusic!\n<red>Usage: <gray>/bounty <check|set|remo
 info:
   message: "<gold><bold>BountyLite</bold>\n<gray>Author: <yellow>{author}\n<gray>Version: <yellow>{version}\n<gray>API version: <yellow>{api}"
 
-usage-check: "<red>Usage: <gray>/bounty check <player>"
-usage-set: "<red>Usage: <gray>/bounty set <player> <amount>"
-usage-remove: "<red>Usage: <gray>/bounty remove <player>"
-usage-bet: "<red>Usage: <gray>/bounty bet <player> <amount>"
-
-unknown-command: "<red>Unknown subcommand."
-invalid-amount: "<red>Invalid amount."
-
 check:
   result: "<yellow>{player}'s <green>bounty: <gold>{amount}"
 
@@ -28,8 +20,6 @@ bet:
   insufficient-funds: "<red>You don't have enough money. You need <gold>{amount}<red>."
   payment-failed: "<red>Could not withdraw the money. Please try again."
   self: "<red>You can't bet on your own bounty."
-
-usage-top: "<red>Usage: /bounty top [page]"
 
 top:
   header: "<gold><bold>Top Bounties</bold> <gray>(page {page}/{pages})"
@@ -59,15 +49,6 @@ dialog:
     confirm-tooltip: "<gray>Add this amount to the bounty"
     cancel: "<red>Cancel"
     cancel-tooltip: "<gray>Close without betting"
-  set:
-    title: "Set bounty"
-    body: "<gray>Enter a player and amount."
-    player: "Player"
-    amount: "Amount"
-    confirm: "<green>Set"
-    confirm-tooltip: "<gray>Set the bounty"
-    cancel: "<red>Cancel"
-    cancel-tooltip: "<gray>Close without changes"
   new:
     title: "<gold>New bounty"
     body: "<gray>Enter a player and the amount to bet."

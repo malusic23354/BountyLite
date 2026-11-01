@@ -4,7 +4,7 @@
 
 **A lightweight bounty system for Paper servers, with a sorted bounty menu and bet dialogs.**
 
-[![Version](https://img.shields.io/badge/version-1.0.3-2ea44f)](https://github.com/malusic23354/BountyLite/releases)
+[![Version](https://img.shields.io/badge/version-1.0.4-2ea44f)](https://github.com/malusic23354/BountyLite/releases)
 [![Paper](https://img.shields.io/badge/Paper-1.21.11-222222)](https://papermc.io/)
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)](https://adoptium.net/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
