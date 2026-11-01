@@ -1,0 +1,101 @@
+prefix: "<dark_gray>[<light_purple>Bounty<dark_gray>] <reset>"
+
+usage: "<gold>Plugin made by Malusic!\n<red>Usage: <gray>/bounty <check|set|remove|bet|top|info|reload>"
+
+info:
+  message: "<gold><bold>BountyLite</bold>\n<gray>Author: <yellow>{author}\n<gray>Version: <yellow>{version}\n<gray>API version: <yellow>{api}"
+
+usage-check: "<red>Usage: <gray>/bounty check <player>"
+usage-set: "<red>Usage: <gray>/bounty set <player> <amount>"
+usage-remove: "<red>Usage: <gray>/bounty remove <player>"
+usage-bet: "<red>Usage: <gray>/bounty bet <player> <amount>"
+
+unknown-command: "<red>Unknown subcommand."
+invalid-amount: "<red>Invalid amount."
+
+check:
+  result: "<yellow>{player}'s <green>bounty: <gold>{amount}"
+
+set:
+  success: "<green>Set <yellow>{player}'s <green>bounty to <gold>{amount}"
+
+remove:
+  success: "<green>Removed <yellow>{player}'s <green>bounty."
+
+bet:
+  success: "<green>Added <gold>{amount} <green>to <yellow>{player}'s <green>bounty."
+  new-total: "<green>New bounty: <gold>{amount}"
+  insufficient-funds: "<red>You don't have enough money. You need <gold>{amount}<red>."
+  payment-failed: "<red>Could not withdraw the money. Please try again."
+  self: "<red>You can't bet on your own bounty."
+
+usage-top: "<red>Usage: /bounty top [page]"
+
+top:
+  header: "<gold><bold>Top Bounties</bold> <gray>(page {page}/{pages})"
+  entry: "<yellow>#{rank} <white>{player} <gray>- <green>{amount}"
+  footer: "<gray>Use <yellow>/bounty top {next}</yellow> for the next page."
+  empty: "<red>There are no active bounties."
+  invalid-page: "<red>Invalid page number."
+
+player-only: "<red>This command can only be used by a player."
+
+unknown-player: "<red>That player has never joined this server."
+
+reload:
+  success: "<green>Messages have been reloaded successfully."
+
+claim:
+  broadcast: "<gold>{killer}</gold> <gray>claimed the bounty of</gray> <green>{amount}</green> <gray>on</gray> <red>{victim}</red>"
+
+no-permission: "<red>You don't have permission to do that."
+
+dialog:
+  bet:
+    title: "<gold>Bet on {player}"
+    body: "<gray>Current bounty: <gold>{amount}"
+    amount: "Amount"
+    confirm: "<green>Bet"
+    confirm-tooltip: "<gray>Add this amount to the bounty"
+    cancel: "<red>Cancel"
+    cancel-tooltip: "<gray>Close without betting"
+  set:
+    title: "Set bounty"
+    body: "<gray>Enter a player and amount."
+    player: "Player"
+    amount: "Amount"
+    confirm: "<green>Set"
+    confirm-tooltip: "<gray>Set the bounty"
+    cancel: "<red>Cancel"
+    cancel-tooltip: "<gray>Close without changes"
+  new:
+    title: "<gold>New bounty"
+    body: "<gray>Enter a player and the amount to bet."
+    player: "Player"
+    amount: "Amount"
+    confirm: "<green>Place bounty"
+    confirm-tooltip: "<gray>Pay the amount and add it to the bounty"
+    cancel: "<red>Cancel"
+    cancel-tooltip: "<gray>Close without betting"
+
+gui:
+  title: "<dark_gray>Bounties <gray>({page}/{pages})"
+  head:
+    name: "<yellow>{player}"
+    lore:
+      - "<gray>Bounty: <gold>{amount}"
+      - "<gray>Rank: <yellow>#{rank}"
+      - ""
+      - "<green>Click to bet"
+  previous: "<yellow>Previous page <gray>({page})"
+  next: "<yellow>Next page <gray>({page})"
+  new-bounty:
+    name: "<green>New bounty"
+    lore:
+      - "<gray>Place a bounty on a player."
+  empty:
+    name: "<red>No active bounties"
+    lore:
+      - "<gray>Use the button below to start one."
+  bet-fallback: "<gray>Click here to fill in <yellow>/bounty bet {player} <amount>"
+  new-fallback: "<gray>Click here to fill in <yellow>/bounty bet <player> <amount>"

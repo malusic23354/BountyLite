@@ -1,0 +1,33 @@
+# BountyLite storage configuration
+#
+# type: sqlite or mysql
+# SQLite is the default and stores everything in plugins/BountyLite/bounties.db.
+# MySQL requires the configured database to exist, or the account must be
+# allowed to create it.
+storage:
+  type: sqlite
+
+  # Prefix used for the bounties table. Set to '' for a table named "bounties".
+  table-prefix: 'bounty_'
+
+  sqlite:
+    # Relative paths are resolved against plugins/BountyLite/.
+    file: 'bounties.db'
+
+  mysql:
+    host: 'localhost'
+    port: 3306
+    database: 'bounty'
+    username: 'root'
+    password: ''
+    use-ssl: false
+
+gui:
+  # Maximum inventory rows (2-6). The bottom row is always the button row.
+  max-rows: 6
+  materials:
+    filler: GRAY_STAINED_GLASS_PANE
+    previous: ARROW
+    next: ARROW
+    new-bounty: EMERALD
+    empty: BARRIER
