@@ -171,6 +171,5 @@ To run a local test server, place a Paper JAR at `run/paper.jar` and use:
 ## Support
 
 - **Issues:** https://github.com/malusic23354/BountyLite/issues
-- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
 
 Bug reports and pull requests are welcome. When reporting a problem, include your server version, plugin version and the relevant console output.

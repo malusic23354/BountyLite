@@ -1,4 +1,4 @@
-prefix: "<dark_gray>[<light_purple>Bounty<dark_gray>] <reset>"
+prefix: "<dark_gray>[<light_purple>BountyLite<dark_gray>] <reset>"
 
 usage: "<gold>Plugin made by Malusic!\n<red>Usage: <gray>/bounty <check|set|remove|bet|top|info|reload>"
 

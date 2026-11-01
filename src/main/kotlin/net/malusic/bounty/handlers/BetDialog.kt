@@ -8,6 +8,7 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody
 import io.papermc.paper.registry.data.dialog.input.DialogInput
 import io.papermc.paper.registry.data.dialog.type.DialogType
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.logging.Level
@@ -71,7 +72,7 @@ class BetDialog(
             .build()
 
         val confirm = button(text("confirm"), text("confirm-tooltip"), DialogAction.commandTemplate(command))
-        val cancel = button(text("cancel"), text("cancel-tooltip"), DialogAction.commandTemplate("bounty"))
+        val cancel = button(text("cancel"), text("cancel-tooltip"), DialogAction.staticAction(ClickEvent.runCommand("/bounty")))
 
         return Dialog.create { factory ->
             factory.empty()
@@ -84,7 +85,7 @@ class BetDialog(
         ActionButton.builder(label).tooltip(tooltip).width(150).action(action).build()
 
     private fun unavailable(cause: Throwable): Boolean {
-        plugin.logger.log(Level.FINE, "Dialog API unavailable; using chat fallback.", cause)
+        plugin.logger.log(Level.WARNING, "Dialog failed; using chat fallback.", cause)
         return false
     }
 }
