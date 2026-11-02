@@ -87,6 +87,9 @@ gui:
 
 ## Commands
 
+<details>
+<summary><b>Show all commands</b></summary>
+
 | Command | Description | Permission |
 | --- | --- | --- |
 | `/bounty` | Open the bounty menu | `bounty.gui` |
@@ -97,6 +100,8 @@ gui:
 | `/bounty top [page]` | Show the leaderboard | `bounty.top` |
 | `/bounty info` | Show author, version and API version | `bounty.info` |
 | `/bounty reload` | Reload messages and config | `bounty.reload` |
+
+</details>
 
 ## Permissions
 
@@ -116,9 +121,10 @@ gui:
 
 </details>
 
-Commands and permissions are registered in code rather than in `paper-plugin.yml`.
-
 ## Storage
+
+<details>
+<summary><b>Show all storage info</b></summary>
 
 Bounties are stored in a SQL table. SQLite is the default:
 
@@ -143,6 +149,8 @@ storage:
 
 The database is created automatically if the account has permission; otherwise create it manually first. The table is created on startup.
 
+</details>
+
 ## Configuration files
 
 | File | Contents |
@@ -151,6 +159,9 @@ The database is created automatically if the account has permission; otherwise c
 | `messages.yml` | Every player-facing message and dialog text, using MiniMessage |
 
 Missing options are appended automatically on start and `/bounty reload`; existing content is never changed.
+
+<details>
+<summary><b>Show building from source info</b></summary>
 
 ## Building from source
 
@@ -167,6 +178,8 @@ To run a local test server, place a Paper JAR at `run/paper.jar` and use:
 ```bash
 ./gradlew runServer
 ```
+
+</details>
 
 ## Support
 
