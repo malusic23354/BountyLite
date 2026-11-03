@@ -11,6 +11,7 @@ class MessageHandler(private val plugin: JavaPlugin) {
     private val miniMessage = MiniMessage.miniMessage()
     private val file = File(plugin.dataFolder, "messages.yml")
     private var config = YamlConfiguration()
+    private var prefix = ""
 
     init {
         load()
@@ -21,6 +22,7 @@ class MessageHandler(private val plugin: JavaPlugin) {
 
         config = YamlConfiguration.loadConfiguration(file)
         addMissingKeys()
+        prefix = config.getString("prefix").orEmpty()
     }
 
     fun message(
@@ -29,8 +31,7 @@ class MessageHandler(private val plugin: JavaPlugin) {
         withPrefix: Boolean = true
     ): Component {
         val text = fill(config.getString(path) ?: "<red>Missing message: $path", placeholders)
-        val prefix = if (withPrefix) config.getString("prefix") ?: "" else ""
-        return miniMessage.deserialize(prefix + text)
+        return miniMessage.deserialize(if (withPrefix) prefix + text else text)
     }
 
     fun messageList(path: String, placeholders: Map<String, String> = emptyMap()): List<Component> =

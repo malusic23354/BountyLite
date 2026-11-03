@@ -18,13 +18,15 @@ class BetDialog(
     private val messages: MessageHandler
 ) {
 
+    private var warned = false
+
     fun openBet(player: Player, targetName: String, currentAmount: String): Boolean =
         show(
             player,
             "bet",
             mapOf("player" to targetName, "amount" to currentAmount),
             listOf("amount" to 32),
-            "bounty bet $targetName \$(amount)"
+            "bounty bet $targetName \$(amount) confirm"
         )
 
     fun openNew(player: Player): Boolean =
@@ -33,7 +35,16 @@ class BetDialog(
             "new",
             emptyMap(),
             listOf("player" to 16, "amount" to 32),
-            "bounty bet \$(player) \$(amount)"
+            "bounty bet \$(player) \$(amount) confirm"
+        )
+
+    fun openSearch(player: Player): Boolean =
+        show(
+            player,
+            "search",
+            emptyMap(),
+            listOf("query" to 32),
+            "bounty search \$(query)"
         )
 
     private fun show(
@@ -51,7 +62,6 @@ class BetDialog(
         } catch (error: LinkageError) {
             unavailable(error)
         }
-
     private fun build(
         key: String,
         placeholders: Map<String, String>,
@@ -85,7 +95,10 @@ class BetDialog(
         ActionButton.builder(label).tooltip(tooltip).width(150).action(action).build()
 
     private fun unavailable(cause: Throwable): Boolean {
-        plugin.logger.log(Level.WARNING, "Dialog failed; using chat fallback.", cause)
+        if (!warned) {
+            warned = true
+            plugin.logger.log(Level.WARNING, "Dialog failed; using chat fallback.", cause)
+        }
         return false
     }
 }

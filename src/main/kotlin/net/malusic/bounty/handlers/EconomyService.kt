@@ -3,6 +3,7 @@ package net.malusic.bounty
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.OfflinePlayer
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.Locale
 
 class EconomyService(private val plugin: JavaPlugin) {
 
@@ -11,15 +12,25 @@ class EconomyService(private val plugin: JavaPlugin) {
 
     fun isAvailable(): Boolean = economy() != null
 
-    fun format(amount: Double): String =
-        economy()?.format(amount) ?: amount.toString()
+    fun providerName(): String? = economy()?.name
 
-    fun has(player: OfflinePlayer, amount: Double): Boolean =
-        economy()?.has(player, amount) ?: false
+    fun format(cents: Long): String =
+        economy()?.format(toDollars(cents)) ?: toDollars(cents).toString()
 
-    fun withdraw(player: OfflinePlayer, amount: Double): Boolean =
-        economy()?.withdrawPlayer(player, amount)?.transactionSuccess() ?: false
+    fun raw(cents: Long): String = String.format(Locale.US, "%.2f", toDollars(cents))
 
-    fun deposit(player: OfflinePlayer, amount: Double): Boolean =
-        economy()?.depositPlayer(player, amount)?.transactionSuccess() ?: false
+    fun has(player: OfflinePlayer, cents: Long): Boolean =
+        economy()?.has(player, toDollars(cents)) ?: false
+
+    fun withdraw(player: OfflinePlayer, cents: Long): Boolean =
+        economy()?.withdrawPlayer(player, toDollars(cents))?.transactionSuccess() ?: false
+
+    fun deposit(player: OfflinePlayer, cents: Long): Boolean =
+        economy()?.depositPlayer(player, toDollars(cents))?.transactionSuccess() ?: false
+
+    companion object {
+        fun toCents(amount: Double): Long = Math.round(amount * 100.0)
+
+        private fun toDollars(cents: Long): Double = cents / 100.0
+    }
 }

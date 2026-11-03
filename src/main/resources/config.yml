@@ -22,6 +22,35 @@ storage:
     password: ''
     use-ssl: false
 
+bets:
+  # Smallest amount a player can bet.
+  min: 0.01
+  # Largest single bet. 0 disables the cap.
+  max: 0
+  # Bets at or above this amount need confirmation. 0 disables it.
+  confirm-threshold: 0
+  # Seconds a player must wait between bets. 0 disables it.
+  cooldown: 0
+  # Hours before a bet expires. 0 disables expiry.
+  expiry-hours: 0
+  # Refund expired bets to the player who placed them.
+  refund-expired: true
+
+anti-abuse:
+  # Do not pay a bounty when the killer and victim connect from the same IP.
+  # Disable this if your server runs behind a proxy that hides player IPs.
+  block-same-ip: true
+
+notifications:
+  # Tell players when someone places or adds a bounty on them.
+  notify-target: true
+
+claim:
+  # Show a title on screen when a player claims a bounty.
+  title: true
+  # Play a sound when a player claims a bounty.
+  sound: true
+
 gui:
   # Maximum inventory rows (2-6). The bottom row is always the button row.
   max-rows: 6
@@ -31,3 +60,5 @@ gui:
     next: ARROW
     new-bounty: EMERALD
     empty: BARRIER
+    search: COMPASS
+    clear: BARRIER

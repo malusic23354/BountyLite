@@ -1,6 +1,6 @@
 prefix: "<dark_gray>[<light_purple>BountyLite<dark_gray>] <reset>"
 
-usage: "<gold>Plugin made by Malusic!\n<red>Usage: <gray>/bounty <check|set|remove|bet|top|info|reload>"
+usage: "<gold>Plugin made by Malusic!\n<red>Usage: <gray>/bounty <check|set|remove|bet|top|search|info|reload>"
 
 info:
   message: "<gold><bold>BountyLite</bold>\n<gray>Author: <yellow>{author}\n<gray>Version: <yellow>{version}\n<gray>API version: <yellow>{api}"
@@ -20,13 +20,22 @@ bet:
   insufficient-funds: "<red>You don't have enough money. You need <gold>{amount}<red>."
   payment-failed: "<red>Could not withdraw the money. Please try again."
   self: "<red>You can't bet on your own bounty."
+  expired: "<yellow>Your <gold>{amount} <yellow>bet on <white>{player} <yellow>expired and was refunded."
+  cooldown: "<red>Wait <gold>{seconds}s <red>before placing another bet."
+  too-small: "<red>The minimum bet is <gold>{amount}<red>."
+  too-large: "<red>The maximum bet is <gold>{amount}<red>."
+  confirm-required: "<yellow>A bet of <gold>{amount} <yellow>is large. Run <gray>/bounty bet {player} {raw} confirm <yellow>to proceed."
 
 top:
   header: "<gold><bold>Top Bounties</bold> <gray>(page {page}/{pages})"
   entry: "<yellow>#{rank} <white>{player} <gray>- <green>{amount}"
   footer: "<gray>Use <yellow>/bounty top {next}</yellow> for the next page."
+  previous: "<gray>Use <yellow>/bounty top {previous}</yellow> for the previous page."
   empty: "<red>There are no active bounties."
   invalid-page: "<red>Invalid page number."
+
+notify:
+  bounty-placed: "<yellow>{player} <gray>placed <gold>{amount} <gray>on you. <gray>Total: <gold>{total}"
 
 player-only: "<red>This command can only be used by a player."
 
@@ -37,6 +46,10 @@ reload:
 
 claim:
   broadcast: "<gold>{killer}</gold> <gray>claimed the bounty of</gray> <green>{amount}</green> <gray>on</gray> <red>{victim}</red>"
+  failed: "<red>Could not pay the {amount} bounty on {victim}. It is still active, try again later."
+  same-ip: "<red>You cannot claim this bounty because you share an IP with {victim}."
+  title: "<green><bold>Bounty Claimed!"
+  subtitle: "<gold>{amount} <gray>from <red>{victim}"
 
 no-permission: "<red>You don't have permission to do that."
 
@@ -58,9 +71,18 @@ dialog:
     confirm-tooltip: "<gray>Pay the amount and add it to the bounty"
     cancel: "<red>Cancel"
     cancel-tooltip: "<gray>Close without betting"
+  search:
+    title: "<gold>Search bounties"
+    body: "<gray>Enter a player name to filter the bounty list."
+    query: "Player name"
+    confirm: "<green>Search"
+    confirm-tooltip: "<gray>Show matching bounties"
+    cancel: "<red>Cancel"
+    cancel-tooltip: "<gray>Keep the current list"
 
 gui:
   title: "<dark_gray>Bounties <gray>({page}/{pages})"
+  search-title: "<dark_gray>Search: <white>{query} <gray>({page}/{pages})"
   head:
     name: "<yellow>{player}"
     lore:
@@ -78,5 +100,19 @@ gui:
     name: "<red>No active bounties"
     lore:
       - "<gray>Use the button below to start one."
+  no-results:
+    name: "<red>No matches"
+    lore:
+      - "<gray>No bounty matches <white>{query}<gray>."
+  search:
+    name: "<aqua>Search bounties"
+    lore:
+      - "<gray>Find a player by name."
+      - "<gray>Current filter: <white>{query}"
+  clear:
+    name: "<red>Clear search"
+    lore:
+      - "<gray>Show all bounties again."
   bet-fallback: "<gray>Click here to fill in <yellow>/bounty bet {player} <amount>"
   new-fallback: "<gray>Click here to fill in <yellow>/bounty bet <player> <amount>"
+  search-fallback: "<gray>Click here to search: <yellow>/bounty search <query>"
