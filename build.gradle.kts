@@ -14,11 +14,26 @@ version = file("src/main/resources/paper-plugin.yml")
     .trim()
     .trim('"', '\'')
 
+fun changelogFor(version: String): String {
+    val changelog = file("changelog.md")
+    if (!changelog.exists()) return "No changelog was specified."
+
+    val lines = changelog.readLines()
+    val start = lines.indexOfFirst { it.trim() == "## $version" }
+    if (start < 0) return "No changelog entry found for $version."
+
+    val nextHeading = lines.drop(start + 1).indexOfFirst { it.startsWith("## ") }
+    val end = if (nextHeading < 0) lines.size else start + 1 + nextHeading
+
+    return lines.subList(start + 1, end).joinToString("\n").trim()
+}
+
 modrinth {
     token.set(providers.gradleProperty("modrinthToken"))
     projectId.set("7k37mlVm")
     versionNumber.set(project.version.toString())
     versionType.set("release")
+    changelog.set(changelogFor(project.version.toString()))
     uploadFile.set(tasks.shadowJar)
     gameVersions.addAll(listOf("1.21.11", "26.1", "26.2", "26.3"))
     loaders.add("paper")
