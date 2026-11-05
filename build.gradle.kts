@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     kotlin("jvm") version "2.4.0"
@@ -28,8 +29,22 @@ fun changelogFor(version: String): String {
     return lines.subList(start + 1, end).joinToString("\n").trim()
 }
 
+val localTokenFile = file(".gradle/gradle.properties")
+val localToken = if (localTokenFile.exists()) {
+    Properties()
+        .apply { localTokenFile.inputStream().use { load(it) } }
+        .getProperty("modrinthToken")
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+} else {
+    null
+}
+
+val modrinthToken = providers.gradleProperty("modrinthToken")
+    .let { provider -> if (localToken != null) provider.orElse(localToken) else provider }
+
 modrinth {
-    token.set(providers.gradleProperty("modrinthToken"))
+    modrinthToken.orNull?.let { token.set(it) }
     projectId.set("7k37mlVm")
     versionNumber.set(project.version.toString())
     versionType.set("release")
@@ -41,6 +56,17 @@ modrinth {
     dependencies {
         required.project("ayRaM8J7")
         optional.project("lKEzGugV")
+    }
+}
+
+tasks.named("modrinth") {
+    doFirst {
+        if (!modrinthToken.isPresent) {
+            throw GradleException(
+                "No Modrinth token found. Add 'modrinthToken=<token>' to " +
+                    File(gradle.gradleUserHomeDir, "gradle.properties")
+            )
+        }
     }
 }
 

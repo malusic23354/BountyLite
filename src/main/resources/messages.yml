@@ -42,7 +42,7 @@ player-only: "<red>This command can only be used by a player."
 unknown-player: "<red>That player has never joined this server."
 
 reload:
-  success: "<green>Messages have been reloaded successfully."
+  success: "<green>Messages and config have been reloaded successfully."
 
 claim:
   broadcast: "<gold>{killer}</gold> <gray>claimed the bounty of</gray> <green>{amount}</green> <gray>on</gray> <red>{victim}</red>"

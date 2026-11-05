@@ -141,10 +141,6 @@ class BountyGui(
         }
     }
 
-    fun reload() {
-        plugin.reloadConfig()
-    }
-
     @EventHandler
     fun onClick(event: InventoryClickEvent) {
         val top = event.view.topInventory

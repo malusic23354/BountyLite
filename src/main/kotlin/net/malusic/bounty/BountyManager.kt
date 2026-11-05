@@ -108,8 +108,6 @@ class BountyManager(
     fun topBettor(position: Int): Pair<UUID, Long>? = topBettorsCache.getOrNull(position - 1)
 
     fun refreshTopBettors(limit: Int = 50) {
-        // Every change queues a refresh, but only the last one in a burst has to
-        // hit the database; earlier tasks just retire themselves.
         pendingRefreshes.incrementAndGet()
         enqueue {
             if (pendingRefreshes.decrementAndGet() > 0) return@enqueue

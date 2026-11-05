@@ -213,8 +213,8 @@ class BountyCommand(
     }
 
     private fun reload(sender: CommandSender) {
+        plugin.reloadConfig()
         messages.load()
-        gui.reload()
         sender.say("reload.success")
     }
 
