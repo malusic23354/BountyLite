@@ -155,6 +155,9 @@ claim:
 
 ## PlaceholderAPI
 
+<details>
+<summary><b>Show all Placeholders</b></summary>
+
 If PlaceholderAPI is installed, BountyLite registers a `bountylite` expansion. `<n>` is a 1-based position.
 
 | Placeholder | Description |
@@ -167,6 +170,8 @@ If PlaceholderAPI is installed, BountyLite registers a `bountylite` expansion. `
 | `%bountylite_total%` | Total of all active bounties |
 
 Positions outside the list return an empty string.
+
+</details>
 
 ## Console output
 
