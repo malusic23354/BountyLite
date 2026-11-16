@@ -5,6 +5,9 @@ api-version: '1.21.11'
 description: Simple lightweight Minecraft bounty system
 authors:
   - Malusic
+libraries:
+  - org.xerial:sqlite-jdbc:3.49.1.0
+  - com.mysql:mysql-connector-j:26.7.0
 dependencies:
   server:
     Vault:

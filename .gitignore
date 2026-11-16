@@ -4,5 +4,5 @@
 build/
 run/
 CHANGELOG.md
-./release.init.gradle.kts
-./dev.gradle.kts
+release.init.gradle.kts
+dev.gradle.kts
